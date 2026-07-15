@@ -40,4 +40,13 @@ Read the tester's findings report and count findings by severity.
 
 Instruct the engineer to amend the implementation to address all flagged findings while staying within the scope of the original plan.
 
-**If the implementation passes** (zero CRITICAL, zero MAJOR, and 2 or fewer MINOR findings): the pipeline is complete. Return the tester's findings report to the user. Surface any MINOR findings as a note.
+**If the implementation passes** (zero CRITICAL, zero MAJOR, and 2 or fewer MINOR findings): proceed to Stage 5.
+
+## Stage 5 — Branch and open a pull request
+
+Only reached when Stage 4 passes. Commit the working tree changes on a new branch and open a pull request, authenticated as the repo's GitHub App bot identity (config in `.claude/skills/build/app-config.env`, credentials in `gh-private-key.pem`) — not the local user's own git/gh identity.
+
+1. Write a PR body to a temp file summarizing: the original task, a short description of what changed, and the tester's findings report (including any MINOR notes).
+2. Run `.claude/skills/build/scripts/open-pr-as-app.sh --title "<concise summary of the task>" --body-file <temp file> --commit-message "<concise summary of the task>"`.
+3. The script creates a branch, commits, pushes, and opens the PR entirely under the bot identity, then restores the local git config and working branch on exit — no manual cleanup needed.
+4. Report the returned PR URL to the user along with the findings report. If the script fails (e.g. nothing to commit, token mint failure), report the error — do not retry silently.

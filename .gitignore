@@ -1,0 +1,6 @@
+gh-private-key.pem
+*.pem
+
+# .NET build output
+bin/
+obj/
