@@ -18,7 +18,7 @@ Use the `/build` skill in Claude Code, passing your task as the argument.
 
 ## Running it via GitHub
 
-The same pipeline can run automatically from GitHub, via [.github/workflows/claude.yml](.github/workflows/claude.yml). Comment `@claude <task>` on an issue or PR (or open/assign an issue mentioning `@claude`), and the workflow triggers `/build` with that text as the task.
+The same pipeline can run automatically from GitHub, via [.github/workflows/claude-build.yml](.github/workflows/claude-build.yml). Comment `@claude <task>` on an issue or PR (or open/assign an issue mentioning `@claude`), and the workflow triggers `/build` with that text as the task.
 
 This requires installing the [Claude GitHub App](https://code.claude.com/docs/en/github-actions) on the repo, and adding a `CLAUDE_CODE_OAUTH_TOKEN` repository secret.
 
@@ -35,7 +35,7 @@ This requires installing the [Claude GitHub App](https://code.claude.com/docs/en
       SKILL.md   # Orchestrates the planner → engineer → tester pipeline, with conditional re-implementation
 .github/
   workflows/
-    claude.yml   # Triggers /build from @claude mentions on issues, PRs, and reviews
+    claude-build.yml  # Triggers /build from @claude mentions on issues, PRs, and reviews
 ```
 
 ## Using this template

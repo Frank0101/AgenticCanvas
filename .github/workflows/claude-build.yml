@@ -40,16 +40,36 @@ jobs:
           additional_permissions: |
             actions: read
 
-          # Optional: Give a custom prompt to Claude. If this is not specified,
-          # Claude will perform the instructions specified in the comment that tagged it.
+          # The extra instructions below are CI-specific observability/output asks,
+          # kept out of the skill itself so it stays usable outside GitHub too.
           prompt: |
             /build ${{ github.event.comment.body || github.event.review.body || github.event.issue.body }}
+
+            Every time you launch a subagent, add an item to your tracked comment's
+            task list for it, named after the subagent. When that subagent terminates,
+            update its item with a one-line summary of its result. Do this for every
+            launch, including repeated ones (e.g. re-invoking the engineer after a
+            failed test) — each gets its own item, not a reused one.
+
+            When opening the pull request, structure its description as:
+
+            ## Summary
+            <the engineer's full implementation report, verbatim>
+
+            ## Testing
+            <the tester's full findings report, verbatim>
 
           # Force tag mode's tracking comment even though we're using a custom prompt
           # (custom prompt puts the action in "automation mode", which skips it by default)
           track_progress: true
 
-          # Optional: Add claude_args to customize behavior and configuration
-          # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
-          # or https://code.claude.com/docs/en/cli-reference for available options
-          # claude_args: '--allowed-tools Bash(gh pr *)'
+          # TEMP DEBUG: full raw tool call/result log, including permission denials
+          # normally hidden. May leak secrets in output — remove once /build works.
+          # show_full_output: true
+
+          # Adds Skill and Agent (missing from tag mode's defaults, needed to invoke
+          # /build and its subagents) plus unscoped Bash (default only allows git).
+          # Write/Edit omitted: acceptEdits permission mode already covers those
+          # in-workspace; listing them would widen that to the whole runner.
+          claude_args: |
+            --allowedTools "Skill,Agent,Bash"
