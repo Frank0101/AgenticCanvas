@@ -1,6 +1,6 @@
 # AgenticCanvas
 
-A blank canvas for starting new projects with agentic AI. It's not a framework or a library — it's a `.claude/` setup (agents + a skill) that you clone as the first commit of a new project, then build on top of using Claude Code. Expect to outgrow or override most of it once real project work begins.
+A blank canvas for starting new projects with agentic AI. It's not a framework or a library — it's a `.claude/` setup (agents + skills) that you clone as the first commit of a new project, then build on top of using Claude Code. Expect to outgrow or override most of it once real project work begins.
 
 ## How it works
 
@@ -14,7 +14,11 @@ If the tester finds at least one CRITICAL or MAJOR issue, or more than 2 MINOR o
 
 ## Running it locally
 
-Use the `/build` skill in Claude Code, passing your task as the argument.
+Three skills build on top of each other, for increasing amounts of git automation:
+
+- `/build <task>` — runs the pipeline only, on whatever branch you currently have checked out. Doesn't touch git.
+- `/build-and-push <task>` — runs `/build`, then commits and pushes to the current branch, but only if the pipeline passed.
+- `/build-and-ship <task>` — runs `/build-and-push` inside an isolated git worktree/branch (so it never touches your working directory, and multiple runs can happen in parallel), then opens a pull request if a commit landed. Cleans up the worktree either way.
 
 ## Running it via GitHub
 
@@ -33,6 +37,10 @@ This requires installing the [Claude GitHub App](https://code.claude.com/docs/en
   skills/
     build/
       SKILL.md   # Orchestrates the planner → engineer → tester pipeline, with conditional re-implementation
+    build-and-push/
+      SKILL.md   # Runs /build, commits, and pushes to the current branch if it passed
+    build-and-ship/
+      SKILL.md   # Runs /build-and-push in an isolated worktree/branch, then opens a PR
 .github/
   workflows/
     claude-build.yml  # Triggers /build from @claude mentions on issues, PRs, and reviews
@@ -42,4 +50,4 @@ This requires installing the [Claude GitHub App](https://code.claude.com/docs/en
 
 1. Clone the repo into your new project directory
 2. Add your own source code alongside the `.claude/` folder
-3. Run `/build <your task>` locally, or trigger it from GitHub with `@claude <your task>`
+3. Run `/build`, `/build-and-push`, or `/build-and-ship <your task>` locally, or trigger `/build` from GitHub with `@claude <your task>`
