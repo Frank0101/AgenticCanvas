@@ -7,10 +7,10 @@ A blank canvas for starting new projects with agentic AI. It's not a framework o
 The core pipeline orchestrates three subagents:
 
 1. **Planner** — explores the codebase and produces a structured execution plan (read-only)
-2. **Engineer** — takes the plan and implements it step by step, running tests after each step
+2. **Coder** — takes the plan and implements it step by step, running tests after each step
 3. **Tester** — reviews the actual changes against the task and plan, and produces a findings report classified by severity (read-only)
 
-If the tester finds at least one CRITICAL or MAJOR issue, or more than 2 MINOR ones, the engineer is launched again to address them and the tester re-reviews. This repeats up to 3 attempts total, then the pipeline stops and reports the final findings either way.
+If the tester finds at least one CRITICAL or MAJOR issue, or more than 2 MINOR ones, the coder is launched again to address them and the tester re-reviews. This repeats up to 3 attempts total, then the pipeline stops and reports the final findings either way.
 
 ## Running it locally
 
@@ -32,11 +32,11 @@ This requires installing the [Claude GitHub App](https://code.claude.com/docs/en
 .claude/
   agents/
     planner.md   # Read-only agent: explores codebase, produces execution plan
-    engineer.md  # Implementation agent: follows the plan step by step
+    coder.md     # Implementation agent: follows the plan step by step
     tester.md    # Read-only agent: reviews changes, produces a findings report
   skills/
     build/
-      SKILL.md   # Orchestrates the planner → engineer → tester pipeline, with conditional re-implementation
+      SKILL.md   # Orchestrates the planner → coder → tester pipeline, with conditional re-implementation
     build-and-push/
       SKILL.md   # Runs /build, commits, and pushes to the current branch if it passed
     build-and-ship/

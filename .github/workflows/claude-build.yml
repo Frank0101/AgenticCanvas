@@ -48,13 +48,13 @@ jobs:
             Every time you launch a subagent, add an item to your tracked comment's
             task list for it, named after the subagent. When that subagent terminates,
             update its item with a one-line summary of its result. Do this for every
-            launch, including repeated ones (e.g. re-invoking the engineer after a
+            launch, including repeated ones (e.g. re-invoking the coder after a
             failed test) — each gets its own item, not a reused one.
 
             When opening the pull request, structure its description as:
 
             ## Summary
-            <the engineer's full implementation report, verbatim>
+            <the coder's full implementation report, verbatim>
 
             ## Testing
             <the tester's full findings report, verbatim>

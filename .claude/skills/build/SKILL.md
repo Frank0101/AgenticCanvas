@@ -20,9 +20,9 @@ If the planner returns no plan or fails, stop, report the error, then end with `
 
 ## Stage 2 — Implement
 
-Launch the `engineer` subagent with the plan from Stage 1 as its prompt. Wait for it to complete and capture the implementation report.
+Launch the `coder` subagent with the plan from Stage 1 as its prompt. Wait for it to complete and capture the implementation report.
 
-If the engineer returns no implementation report or fails, stop, report the error, then end with `BUILD_RESULT: FAILED`. Do not proceed.
+If the coder returns no implementation report or fails, stop, report the error, then end with `BUILD_RESULT: FAILED`. Do not proceed.
 
 ## Stage 3 — Test
 
@@ -44,5 +44,5 @@ Track an attempt counter, starting at 1 for the implementation from Stage 2. Rea
 
 **If the implementation does not pass** (at least one CRITICAL or MAJOR finding, or more than 2 MINOR findings):
 
-- **If the attempt counter is below 3**: increment the counter, launch the `engineer` subagent again with the original plan from Stage 1 (unmodified) and the tester's findings report from Stage 3 (unmodified), instructing it to amend the implementation to address all flagged findings while staying within the scope of the original plan. Then repeat Stage 3 (test) against the new implementation, and re-evaluate here at Stage 4.
+- **If the attempt counter is below 3**: increment the counter, launch the `coder` subagent again with the original plan from Stage 1 (unmodified) and the tester's findings report from Stage 3 (unmodified), instructing it to amend the implementation to address all flagged findings while staying within the scope of the original plan. Then repeat Stage 3 (test) against the new implementation, and re-evaluate here at Stage 4.
 - **If the attempt counter has reached 3** (i.e. the implementation has already been tried 3 times, including retries): stop the loop. Report to the user that the pipeline did not converge after 3 attempts, include the final tester findings report in full so the user can see what's still outstanding, then end with `BUILD_RESULT: FAILED`.

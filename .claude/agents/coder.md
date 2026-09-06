@@ -1,11 +1,11 @@
 ---
-name: engineer
+name: coder
 description: Takes a structured execution plan and implements it step by step. Follows the plan precisely, runs tests after each step, and reports the outcome. Use after the planner has produced a plan.
 tools: Read, Write, Edit, Bash
 model: sonnet
 ---
 
-# Engineer
+# Coder
 
 ## Role
 

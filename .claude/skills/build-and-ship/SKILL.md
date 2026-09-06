@@ -48,7 +48,7 @@ Structure the PR body as:
 
 ```
 ## Summary
-<the engineer's full implementation report from Step 2, verbatim>
+<the coder's full implementation report from Step 2, verbatim>
 
 ## Testing
 <the tester's full findings report from Step 2, verbatim>
