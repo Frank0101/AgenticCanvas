@@ -4,7 +4,7 @@ A blank canvas for starting new projects with agentic AI. It's not a framework o
 
 ## How it works
 
-Run `/build <task description>` in Claude Code. The skill orchestrates three subagents in a pipeline:
+The core pipeline orchestrates three subagents:
 
 1. **Planner** — explores the codebase and produces a structured execution plan (read-only)
 2. **Engineer** — takes the plan and implements it step by step, running tests after each step
@@ -14,7 +14,7 @@ If the tester finds at least one CRITICAL or MAJOR issue, or more than 2 MINOR o
 
 ## Running it locally
 
-Three skills build on top of each other, for increasing amounts of git automation:
+The pipeline above is implemented in the `build` skill. Three skills build on top of each other, for increasing amounts of git automation:
 
 - `/build <task>` — runs the pipeline only, on whatever branch you currently have checked out. Doesn't touch git.
 - `/build-and-push <task>` — runs `/build`, then commits and pushes to the current branch, but only if the pipeline passed.
