@@ -15,7 +15,8 @@ Runs `build-and-push` inside a disposable git worktree, so it never touches your
 2. Derive a short kebab-case slug (3-6 words) from the task description.
 3. Determine the repo's directory name: `basename "$(git rev-parse --show-toplevel)"`.
 4. Create the worktree on a new branch off the current branch: `git worktree add ../<repo-name>-claude-<slug> -b claude/<slug>`.
-5. `cd` into that new directory. Run every command in the steps below from there, unless a step says otherwise.
+5. Switch into that new directory with `EnterWorktree(path: "../<repo-name>-claude-<slug>")` rather than a plain shell `cd`, since a raw `cd` is not guaranteed to persist across later tool calls. Run every command in the steps below from there, unless a step says otherwise.
+   - This worktree was created manually with `git worktree add`, not via `EnterWorktree(name: ...)`, so `ExitWorktree` will not recognize it. Do not call `ExitWorktree` in this skill — cleanup in Steps 3a/3b uses plain `cd` and `git worktree remove` instead.
 
 ## Step 2 — Run the build pipeline
 

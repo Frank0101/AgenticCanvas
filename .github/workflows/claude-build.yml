@@ -53,14 +53,21 @@ jobs:
 
             When opening the pull request, structure its description as:
 
+            ```
             ## Summary
             <the coder's full implementation report, verbatim>
 
             ## Testing
             <the tester's full findings report, verbatim>
 
+            🤖 Generated with [Claude Code](https://claude.com/claude-code)
+            ```
+
             Every commit you make must end its message with:
+
+            ```
             Co-Authored-By: Claude <noreply@anthropic.com>
+            ```
 
           # Force tag mode's tracking comment even though we're using a custom prompt
           # (custom prompt puts the action in "automation mode", which skips it by default)
