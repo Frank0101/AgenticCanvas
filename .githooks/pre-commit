@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# Repository-managed pre-commit hook.
+#
+# On every normal commit that touches .claude/, bumps the PATCH component of
+# VERSION and regenerates the plugin artifact under .build/agentic-canvas/ to
+# match. Commits that don't touch .claude/ are left untouched.
+#
+# The next version is always derived from VERSION as committed in HEAD, never
+# from the working tree or index. This keeps repeated commit attempts
+# idempotent: if HEAD is 0.1.4, every retry recomputes 0.1.5, regardless of
+# what a previous failed attempt left staged.
+#
+# Enable this hook with: bash scripts/setup-hooks.sh
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+# Skip during merge/rebase/cherry-pick commits: bumping the version is only
+# meaningful for normal, author-driven commits.
+if git rev-parse -q --verify MERGE_HEAD >/dev/null 2>&1; then
+  exit 0
+fi
+
+# Skip unless this commit actually changes something under .claude/ — no
+# point bumping the version or rebuilding the plugin for unrelated commits.
+if ! git diff --cached --name-only --diff-filter=ACMRTUXB | grep -q '^\.claude/'; then
+  exit 0
+fi
+
+if git rev-parse -q --verify HEAD >/dev/null 2>&1 && git cat-file -e HEAD:VERSION 2>/dev/null; then
+  CURRENT_VERSION="$(git show HEAD:VERSION | tr -d '[:space:]')"
+else
+  # No committed VERSION yet (e.g. first commit): fall back to the working copy.
+  CURRENT_VERSION="$(tr -d '[:space:]' <VERSION)"
+fi
+
+IFS='.' read -r MAJOR MINOR PATCH <<<"$CURRENT_VERSION"
+NEXT_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))"
+
+echo "$NEXT_VERSION" >VERSION
+
+bash scripts/build-plugin.sh
+
+git add VERSION .build
+
+echo "pre-commit: bumped version $CURRENT_VERSION -> $NEXT_VERSION"

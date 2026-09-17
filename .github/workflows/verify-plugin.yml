@@ -1,0 +1,26 @@
+name: Verify Plugin Build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run build-plugin.sh
+        run: bash scripts/build-plugin.sh
+
+      - name: Fail if .build/ is out of sync with .claude/
+        run: |
+          if ! git diff --quiet -- .build; then
+            echo "::error::.build/ is out of sync with .claude/. Run scripts/build-plugin.sh and commit the result."
+            git status --porcelain -- .build
+            git diff -- .build
+            exit 1
+          fi

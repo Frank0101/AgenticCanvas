@@ -1,0 +1,20 @@
+{
+  "name": "agentic-canvas",
+  "owner": {
+    "name": "Francesco Cossu",
+    "url": "https://github.com/Frank0101"
+  },
+  "plugins": [
+    {
+      "name": "agentic-canvas",
+      "displayName": "AgenticCanvas",
+      "description": "Planner -> Coder -> Tester build pipeline as Claude Code agents and skills.",
+      "source": {
+        "source": "git-subdir",
+        "url": "Frank0101/AgenticCanvas",
+        "path": ".build/agentic-canvas",
+        "ref": "master"
+      }
+    }
+  ]
+}
