@@ -11,7 +11,7 @@
       "description": "Planner -> Coder -> Tester build pipeline as Claude Code agents and skills.",
       "source": {
         "source": "git-subdir",
-        "url": "Frank0101/AgenticCanvas",
+        "url": "https://github.com/Frank0101/AgenticCanvas.git",
         "path": ".build/agentic-canvas",
         "ref": "master"
       }

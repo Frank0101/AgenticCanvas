@@ -50,6 +50,27 @@ claude plugin install agentic-canvas@agentic-canvas --scope project
 
 `--scope` defaults to `user` if omitted. All three install the same agents and skills described above, without touching anything else in the target project.
 
+To clean up:
+
+1. List what's installed, to find the plugin and the scope it was installed at:
+
+   ```bash
+   claude plugin list
+   ```
+
+2. List configured marketplaces, to confirm the marketplace name:
+
+   ```bash
+   claude plugin marketplace list
+   ```
+
+3. Uninstall the plugin (matching `--scope` to what step 1 showed) and remove the marketplace:
+
+   ```bash
+   claude plugin uninstall agentic-canvas@agentic-canvas --scope <scope>
+   claude plugin marketplace remove agentic-canvas
+   ```
+
 ## Running it via GitHub
 
 The repo also contains an example of how to run the pipeline automatically from GitHub, via [.github/workflows/claude-build.yml](.github/workflows/claude-build.yml). Comment `@claude <task>` on an issue or PR (or open/assign an issue mentioning `@claude`), and the workflow triggers `/build` with that text as the task.
