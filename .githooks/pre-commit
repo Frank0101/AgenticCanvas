@@ -8,7 +8,8 @@
 # The next version is always derived from VERSION as committed in HEAD, never
 # from the working tree or index. This keeps repeated commit attempts
 # idempotent: if HEAD is 0.1.4, every retry recomputes 0.1.5, regardless of
-# what a previous failed attempt left staged.
+# what a previous failed attempt left staged. (Amending a commit that changes
+# .claude/ bumps again, since HEAD already holds the bumped version.)
 #
 # Enable this hook with: bash scripts/setup-hooks.sh
 set -euo pipefail
@@ -16,19 +17,20 @@ set -euo pipefail
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT"
 
-# Skip during merge/rebase/cherry-pick commits: bumping the version is only
-# meaningful for normal, author-driven commits.
-if git rev-parse -q --verify MERGE_HEAD >/dev/null 2>&1; then
+# Skip merge commits: bumping the version is only meaningful for normal,
+# author-driven commits.
+if git rev-parse -q --verify MERGE_HEAD >/dev/null; then
   exit 0
 fi
 
-# Skip unless this commit actually changes something under .claude/ — no
-# point bumping the version or rebuilding the plugin for unrelated commits.
-if ! git diff --cached --name-only --diff-filter=ACMRTUXB | grep -q '^\.claude/'; then
+# Skip unless this commit actually changes something under .claude/ (including
+# deletions) — no point bumping the version or rebuilding the plugin for
+# unrelated commits.
+if git diff --cached --quiet -- .claude; then
   exit 0
 fi
 
-if git rev-parse -q --verify HEAD >/dev/null 2>&1 && git cat-file -e HEAD:VERSION 2>/dev/null; then
+if git cat-file -e HEAD:VERSION 2>/dev/null; then
   CURRENT_VERSION="$(git show HEAD:VERSION | tr -d '[:space:]')"
 else
   # No committed VERSION yet (e.g. first commit): fall back to the working copy.

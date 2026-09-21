@@ -1,78 +1,133 @@
 # AgenticCanvas
 
-A laboratory for testing and building skills for agentic coding. It also includes an experiment showing how such skills can be invoked from a GitHub Action.
+A [Claude Code](https://claude.com/claude-code) plugin that adds a **plan → code → review** pipeline to your coding sessions.
 
-## Repo setup
+Given a task, it runs three subagents in sequence:
 
-After cloning, run once:
+1. a **planner** explores the codebase and writes a step-by-step plan,
+2. a **coder** implements the plan, running tests after each step,
+3. a **tester** reviews the changes and, if it finds significant issues, sends them back to the coder for fixes.
 
-```bash
-bash scripts/setup-hooks.sh
-```
+## Installation
 
-This points git at the repo-managed hooks in [.githooks/](.githooks/) (`git config core.hooksPath .githooks`), so the pre-commit hook that keeps the packaged plugin in sync (see [Installing as a plugin](#installing-as-a-plugin)) actually runs before every local commit.
+You need [Claude Code](https://claude.com/claude-code) installed. Then:
 
-## The skills
-
-The `build` skill is the core of the agentic coding pipeline. It manages a workflow made of 3 subagents: planner, coder, and tester.
-
-- **Planner** — read-only. Explores the codebase and produces a structured execution plan for the given task. Each step states why it's needed, what to do, and how to test it, so the coder gets an unambiguous, checkable unit of work rather than a vague instruction.
-- **Coder** — takes the plan and implements it step by step, running the relevant tests after each step before moving to the next. It only follows the plan; it doesn't re-derive scope or make architectural decisions on its own.
-- **Tester** — read-only, like the planner. Reviews the actual code changes against the original task and the plan, checking correctness, minimality, consistency with existing codebase patterns, and test coverage. Produces a findings report with issues classified as MINOR, MAJOR, or CRITICAL.
-
-The findings report decides whether the pipeline loops: if the tester comes back with at least one CRITICAL or MAJOR issue, or more than 2 MINOR ones, the coder is launched again with those findings to address them, and the tester re-reviews the result. This repeats for up to 3 attempts total, after which the pipeline stops and reports the final findings either way — pass or fail.
-
-Two more skills extend `build` with increasing amounts of git automation:
-
-- `/build-and-push <task>` — runs `/build`, then commits and pushes to the current branch, but only if the pipeline passed.
-- `/build-and-ship <task>` — runs `/build-and-push` inside an isolated git worktree/branch (so it never touches your working directory, and multiple runs can happen in parallel), then opens a pull request if a commit landed. Cleans up the worktree either way.
-
-## Installing as a plugin
-
-These skills are also packaged as an installable Claude Code plugin, so you can use them in any project without cloning this repo. Add the marketplace once per machine:
+**1. Add the marketplace** (once per machine):
 
 ```bash
 claude plugin marketplace add Frank0101/AgenticCanvas
 ```
 
-Then install the plugin at whichever scope fits:
+**2. Install the plugin**, choosing the scope that fits:
 
 ```bash
-# Available in every project on this machine (default scope)
+# Every project on this machine (default)
 claude plugin install agentic-canvas@agentic-canvas --scope user
 
-# Available only in the current project, for you (not committed/shared)
+# Only the current project, only for you (not committed)
 claude plugin install agentic-canvas@agentic-canvas --scope local
 
-# Available to everyone who clones the current project (committed to .claude/settings.json)
+# Everyone who clones the current project (saved in .claude/settings.json)
 claude plugin install agentic-canvas@agentic-canvas --scope project
 ```
 
-`--scope` defaults to `user` if omitted. All three install the same agents and skills described above, without touching anything else in the target project.
+All three install exactly the same skills and agents, and don't change anything else in your project.
 
-To clean up:
+**3. Try it.** In Claude Code, run:
 
-1. List what's installed, to find the plugin and the scope it was installed at:
+```
+/agentic-canvas:build add input validation to the signup form
+```
 
-   ```bash
-   claude plugin list
-   ```
+> Skills from a plugin are namespaced with the plugin name, so the skills below are invoked as `/agentic-canvas:build`, `/agentic-canvas:build-and-push` and `/agentic-canvas:build-and-ship`. The sections below use the short names for readability.
 
-2. List configured marketplaces, to confirm the marketplace name:
+### Uninstalling
 
-   ```bash
-   claude plugin marketplace list
-   ```
+```bash
+# Find the plugin and the scope it was installed at
+claude plugin list
 
-3. Uninstall the plugin (matching `--scope` to what step 1 showed) and remove the marketplace:
+# Uninstall the plugin, using the scope shown above
+claude plugin uninstall agentic-canvas@agentic-canvas --scope <scope>
 
-   ```bash
-   claude plugin uninstall agentic-canvas@agentic-canvas --scope <scope>
-   claude plugin marketplace remove agentic-canvas
-   ```
+# Remove the marketplace
+claude plugin marketplace remove agentic-canvas
+```
 
-## Running it via GitHub
+## Skills
 
-The repo also contains an example of how to run the pipeline automatically from GitHub, via [.github/workflows/claude-build.yml](.github/workflows/claude-build.yml). Comment `@claude <task>` on an issue or PR (or open/assign an issue mentioning `@claude`), and the workflow triggers `/build` with that text as the task.
+Skills are the commands you run. There are three, each building on the previous one.
 
-This requires installing the [Claude GitHub App](https://code.claude.com/docs/en/github-actions) on the repo, and adding a `CLAUDE_CODE_OAUTH_TOKEN` repository secret.
+### `/build <task>`
+
+Runs the full pipeline on your task:
+
+1. The **planner** produces a plan.
+2. The **coder** implements it.
+3. The **tester** reviews the changes and reports findings.
+4. If the review found real problems, the coder is called again to fix them and the tester re-checks. This repeats up to **3 attempts** in total.
+
+The pipeline **passes** when the tester reports no CRITICAL findings, no MAJOR findings, and at most 2 MINOR ones. Otherwise it retries, and after the third attempt it stops and shows you what is still outstanding.
+
+Either way, the changes are left in your working directory, uncommitted, so you can inspect them. The last line of the output is always `BUILD_RESULT: PASSED` or `BUILD_RESULT: FAILED`.
+
+### `/build-and-push <task>`
+
+Runs `/build`, then commits and pushes to your current branch, but **only if the build passed**.
+
+- Requires a clean working tree. If you have uncommitted changes it stops, so the pipeline's edits can't be mixed up with yours.
+- If the build fails, nothing is committed. The changes stay in your working directory for you to review or discard.
+
+### `/build-and-ship <task>`
+
+Runs `/build-and-push` in an isolated git worktree on its own `claude/<task-slug>` branch, then opens a **pull request** if a commit was produced.
+
+- Your working directory is never touched, and you can run several in parallel.
+- The PR description contains the coder's implementation report and the tester's findings.
+- Requires the [GitHub CLI](https://cli.github.com/) (`gh`), authenticated.
+- This one only runs when you invoke it yourself. Claude won't start it on its own.
+
+## Agents
+
+The three agents are what `/build` orchestrates. You don't normally call them directly, but Claude can delegate to them in any session once the plugin is installed. All three run on Sonnet.
+
+### Planner
+
+_Read-only. Tools: Read, Bash._
+
+Explores your codebase and turns the task into a numbered plan. Every step states **what** to do, **why**, and **how to test it**.
+
+Before planning, it looks for your project's conventions (`CLAUDE.md`, architecture docs, style guides) and follows them. Where documented guidelines and existing code disagree, it aims for the documented target and tells you where it couldn't fully get there. If the task is ambiguous, it states its assumptions at the top of the plan.
+
+### Coder
+
+_Tools: Read, Write, Edit, Bash._
+
+Implements the plan one step at a time, running each step's test before moving on. It follows the plan strictly: no extra features, no unrelated refactoring. If a step is ambiguous it takes the smallest reasonable interpretation and flags it. If a step is blocked, it stops and reports the blocker.
+
+It finishes with an implementation report listing, per step, what changed and whether its test passed.
+
+### Tester
+
+_Read-only. Tools: Read, Bash._
+
+Reviews what was actually changed in the code, not just what the coder says it did, against the original task and plan. It checks four things:
+
+- **Correctness** — does it do what the task asked?
+- **Minimality** — is anything unrelated or unnecessary in the diff?
+- **Consistency** — does it match the codebase's existing patterns and style?
+- **Test coverage** — are meaningful changes covered, where tests exist or were requested?
+
+Each finding is rated by severity:
+
+| Severity     | Meaning                                                                       |
+| ------------ | ----------------------------------------------------------------------------- |
+| **CRITICAL** | Breaks correctness, introduces a bug, or leaves the task unaddressed          |
+| **MAJOR**    | A real issue that violates something the task or codebase explicitly requires |
+| **MINOR**    | Cosmetic or stylistic, with no functional impact                              |
+
+Severity is tied to the task's scope. A generally good practice that the task didn't ask for (for example, adding tests to a project that has none) is never rated above MINOR.
+
+## Contributing
+
+Want to change the skills or agents? See [CONTRIBUTING.md](CONTRIBUTING.md).
