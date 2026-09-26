@@ -1,7 +1,7 @@
 {
   "name": "agentic-canvas",
   "displayName": "AgenticCanvas",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Planner -> Coder -> Tester build pipeline as Claude Code agents and skills.",
   "author": {
     "name": "Francesco Cossu"

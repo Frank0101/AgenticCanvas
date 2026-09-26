@@ -16,7 +16,7 @@ Runs `build-and-push` inside a disposable git worktree, so it never touches your
 3. Determine the repo's directory name: `basename "$(git rev-parse --show-toplevel)"`.
 4. Create the worktree on a new branch off the current branch: `git worktree add ../<repo-name>-claude-<slug> -b claude/<slug>`.
 5. Switch into that new directory with `EnterWorktree(path: "../<repo-name>-claude-<slug>")` rather than a plain shell `cd`, since a raw `cd` is not guaranteed to persist across later tool calls. Run every command in the steps below from there, unless a step says otherwise.
-   - This worktree was created manually with `git worktree add`, not via `EnterWorktree(name: ...)`, so `ExitWorktree` will not recognize it. Do not call `ExitWorktree` in this skill — cleanup in Steps 3a/3b uses plain `cd` and `git worktree remove` instead.
+   - Once entered, the session is worktree-isolated: a plain `cd` back to the original directory, or `EnterWorktree(path: <original dir>)`, will be refused. The only way out is `ExitWorktree(action: "keep")`. Because the worktree was entered via `path`, `ExitWorktree` never deletes it (even with `action: "remove"`), so cleanup in Steps 3a/3b always exits with `"keep"` and then removes the worktree with `git worktree remove`.
 
 ## Step 2 — Run the build pipeline
 
@@ -33,7 +33,7 @@ Run `git log <base branch from Step 1>..HEAD --oneline`.
 
 Report to the user what happened, based on what `build-and-push` reported. Then remove the isolation, discarding nothing of value since no commit was ever made:
 
-1. `cd` back to the original directory.
+1. `ExitWorktree(action: "keep")` to return the session to the original directory.
 2. `git worktree remove ../<repo-name>-claude-<slug> --force`
 3. `git branch -D claude/<slug>`
 
@@ -59,5 +59,5 @@ Structure the PR body as:
 
 Report the PR URL to the user. Then clean up the now-unneeded worktree, keeping the branch (its commits are already pushed and the PR points at it):
 
-1. `cd` back to the original directory.
+1. `ExitWorktree(action: "keep")` to return the session to the original directory.
 2. `git worktree remove ../<repo-name>-claude-<slug>`

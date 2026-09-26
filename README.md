@@ -22,13 +22,13 @@ claude plugin marketplace add Frank0101/AgenticCanvas
 
 ```bash
 # Every project on this machine (default)
-claude plugin install agentic-canvas@agentic-canvas --scope user
+claude plugin install agentic-canvas@agentic-canvas --scope "user"
 
 # Only the current project, only for you (not committed)
-claude plugin install agentic-canvas@agentic-canvas --scope local
+claude plugin install agentic-canvas@agentic-canvas --scope "local"
 
 # Everyone who clones the current project (saved in .claude/settings.json)
-claude plugin install agentic-canvas@agentic-canvas --scope project
+claude plugin install agentic-canvas@agentic-canvas --scope "project"
 ```
 
 All three install exactly the same skills and agents, and don't change anything else in your project.
@@ -48,10 +48,23 @@ All three install exactly the same skills and agents, and don't change anything 
 claude plugin list
 
 # Uninstall the plugin, using the scope shown above
-claude plugin uninstall agentic-canvas@agentic-canvas --scope <scope>
+claude plugin uninstall agentic-canvas@agentic-canvas --scope "<scope>"
 
 # Remove the marketplace
 claude plugin marketplace remove agentic-canvas
+```
+
+### Updating
+
+```bash
+# Refresh the marketplace to pick up new releases
+claude plugin marketplace update agentic-canvas
+
+# Check the installed version against the latest available
+claude plugin list
+
+# Update the plugin, using the scope it was installed at (restart required to apply)
+claude plugin update agentic-canvas@agentic-canvas --scope "<scope>"
 ```
 
 ## Skills
