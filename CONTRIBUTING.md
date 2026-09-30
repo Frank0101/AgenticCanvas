@@ -2,42 +2,21 @@
 
 This document is for people who want to work on AgenticCanvas itself. If you just want to use it, see the [README](README.md).
 
-## Repo setup
-
-After cloning, run once:
-
-```bash
-bash scripts/setup-hooks.sh
-```
-
-This points git at the repo-managed hooks in [.githooks/](.githooks/) (`git config core.hooksPath .githooks`), so the pre-commit hook that keeps the packaged plugin in sync (see below) actually runs before every local commit.
-
 ## How the repo is organised
 
-| Path                                                               | Purpose                                                                            |
-| ------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
-| [.claude/agents/](.claude/agents/)                                 | Agent definitions (planner, coder, tester). **Source of truth.**                   |
-| [.claude/skills/](.claude/skills/)                                 | Skill definitions (build, build-and-push, build-and-ship). **Source of truth.**    |
-| [.build/agentic-canvas/](.build/agentic-canvas/)                   | The distributable plugin. **Generated, never edit by hand.**                       |
-| [.claude-plugin/marketplace.json](.claude-plugin/marketplace.json) | Marketplace manifest that points at `.build/agentic-canvas`.                       |
-| [VERSION](VERSION)                                                 | Plugin version, written into the generated `plugin.json`.                          |
-| [scripts/](scripts/)                                               | `build-plugin.sh` (generates the plugin) and `setup-hooks.sh` (enables git hooks). |
-| [.githooks/pre-commit](.githooks/pre-commit)                       | Bumps the version and rebuilds the plugin on commit.                               |
-| [.github/workflows/](.github/workflows/)                           | CI: `claude-build.yml`.                                                            |
+| Path                                                               | Purpose                                                                         |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| [agents/](agents/)                                                 | Agent definitions (planner, coder, tester). **Source of truth.**                |
+| [skills/](skills/)                                                 | Skill definitions (build, build-and-push, build-and-ship). **Source of truth.** |
+| [.claude-plugin/marketplace.json](.claude-plugin/marketplace.json) | Marketplace manifest, pointing at the repo root (`"source": "./"`).             |
+| [.claude/agents](.claude/agents), [.claude/skills](.claude/skills) | Symlinks to `../agents` and `../skills`, so this repo dogfoods its own plugin.  |
+| [.github/workflows/](.github/workflows/)                           | CI: `claude-build.yml`.                                                         |
 
-The repo uses its own `.claude/` directly (dogfooding), while everyone else installs the packaged copy under `.build/`.
+There is nothing to build or copy: edit files under `agents/` and `skills/` and both the plugin and the local `.claude/` pick them up.
 
-## Packaging the plugin
+## Versioning
 
-[scripts/build-plugin.sh](scripts/build-plugin.sh) regenerates `.build/agentic-canvas/` from `.claude/agents` and `.claude/skills`, and writes `plugin.json` using the number in `VERSION`. It is deterministic: the same inputs always produce the same output.
-
-You normally don't run it yourself. The pre-commit hook does it for you:
-
-- On any commit that touches `.claude/`, it bumps the **patch** component of `VERSION` and rebuilds `.build/`, then stages both.
-- The new version is always computed from `VERSION` as committed in `HEAD`, so retrying a failed commit gives the same result.
-- Commits that don't touch `.claude/`, and merge commits, are left alone.
-
-For a minor or major bump, edit `VERSION` yourself before committing. Note that the hook derives the next version from `HEAD`, so make that change in a separate commit first.
+The marketplace entry deliberately has no `version` field. Claude Code then uses the git commit SHA as the plugin version, so every commit is a new version that `/plugin update` (or auto-update) picks up. Don't add a `version`: it pins users to that string until you change it.
 
 ## CI
 

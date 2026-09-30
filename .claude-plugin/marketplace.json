@@ -1,5 +1,6 @@
 {
-  "name": "agentic-canvas",
+  "name": "frank0101",
+  "description": "Claude Code plugins by Frank0101.",
   "owner": {
     "name": "Francesco Cossu",
     "url": "https://github.com/Frank0101"
@@ -8,13 +9,12 @@
     {
       "name": "agentic-canvas",
       "displayName": "AgenticCanvas",
-      "description": "Planner -> Coder -> Tester build pipeline as Claude Code agents and skills.",
-      "source": {
-        "source": "git-subdir",
-        "url": "https://github.com/Frank0101/AgenticCanvas.git",
-        "path": ".build/agentic-canvas",
-        "ref": "master"
-      }
+      "description": "Plan, implement and review tasks with specialised subagents.",
+      "source": "./",
+      "author": {
+        "name": "Frank0101"
+      },
+      "repository": "https://github.com/Frank0101/AgenticCanvas"
     }
   ]
 }
