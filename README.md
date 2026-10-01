@@ -36,7 +36,7 @@ All three install exactly the same skills and agents, and don't change anything 
 **3. Try it.** In Claude Code, run:
 
 ```
-/agentic-canvas:build add input validation to the signup form
+/agentic-canvas:build create an empty C# console application
 ```
 
 > Skills from a plugin are namespaced with the plugin name, so the skills below are invoked as `/agentic-canvas:build`, `/agentic-canvas:build-and-push` and `/agentic-canvas:build-and-ship`. The sections below use the short names for readability.
@@ -44,11 +44,14 @@ All three install exactly the same skills and agents, and don't change anything 
 ### Uninstalling
 
 ```bash
-# Find the plugin and the scope it was installed at
+# List the installed plugins
 claude plugin list
 
 # Uninstall the plugin, using the scope shown above
 claude plugin uninstall agentic-canvas@frank0101 --scope "<scope>"
+
+# List the installed marketplaces
+claude plugin marketplace list
 
 # Remove the marketplace
 claude plugin marketplace remove frank0101

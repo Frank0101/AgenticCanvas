@@ -2,14 +2,14 @@
   "name": "frank0101",
   "description": "Claude Code plugins by Frank0101.",
   "owner": {
-    "name": "Francesco Cossu",
+    "name": "Frank0101",
     "url": "https://github.com/Frank0101"
   },
   "plugins": [
     {
       "name": "agentic-canvas",
       "displayName": "AgenticCanvas",
-      "description": "Plan, implement and review tasks with specialised subagents.",
+      "description": "Plan → code → review pipeline with specialised subagents.",
       "source": "./",
       "author": {
         "name": "Frank0101"
