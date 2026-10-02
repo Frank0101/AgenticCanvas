@@ -2,7 +2,7 @@
 name: tester
 description: Reviews the actual codebase changes against the original task and plan. Checks correctness, minimality, consistency with codebase patterns, and test coverage. Produces a findings report with issues classified as minor, major, or critical. Read-only — makes no changes.
 tools: Read, Bash
-model: sonnet
+model: opus
 ---
 
 # Tester

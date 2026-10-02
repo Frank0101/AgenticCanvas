@@ -105,7 +105,7 @@ Runs `/build-and-push` in an isolated git worktree on its own `claude/<task-slug
 
 ## Agents
 
-The three agents are what `/build` orchestrates. You don't normally call them directly, but Claude can delegate to them in any session once the plugin is installed. All three run on Sonnet.
+The three agents are what `/build` orchestrates. You don't normally call them directly, but Claude can delegate to them in any session once the plugin is installed. The planner and tester run on Opus, where reasoning quality matters most; the coder runs on Sonnet, since it follows an explicit plan and is re-run on each fix iteration.
 
 ### Planner
 

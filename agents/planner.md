@@ -2,7 +2,7 @@
 name: planner
 description: Explores a codebase and produces a structured execution plan for a given task. Each step includes why it's needed, what to do, and how to test it. Use this before implementing any non-trivial feature, refactor, or bug fix.
 tools: Read, Bash
-model: sonnet
+model: opus
 ---
 
 # Planner
